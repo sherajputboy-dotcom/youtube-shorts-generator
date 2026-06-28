@@ -5,7 +5,7 @@ import tempfile
 import shutil
 import time
 import re
-import json
+import random
 from pathlib import Path
 
 # ─── Page Config ────────────────────────────────────────────────────────────
@@ -19,7 +19,7 @@ st.set_page_config(
 # ─── Glassmorphic CSS ──────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* ─── Animated Gradient Background ─── */
+    /* Animated Gradient Background */
     .stApp > header { background-color: transparent !important; }
     .stApp {
         background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a2e, #16213e);
@@ -34,7 +34,7 @@ st.markdown("""
         100% { background-position: 0% 50%; }
     }
 
-    /* ─── Floating Orbs ─── */
+    /* Floating Orbs */
     .stApp::before {
         content: '';
         position: fixed;
@@ -70,7 +70,7 @@ st.markdown("""
         50% { transform: translate(80px, -60px); }
     }
 
-    /* ─── Glassmorphic Card ─── */
+    /* Glassmorphic Card */
     div[data-testid="stVerticalBlock"] > div:has(> div.element-container) {
         background: rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(20px);
@@ -78,21 +78,12 @@ st.markdown("""
         border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 20px;
         padding: 24px;
-        box-shadow:
-            0 8px 32px rgba(0, 0, 0, 0.3),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
         margin-bottom: 16px;
         transition: all 0.3s ease;
     }
-    div[data-testid="stVerticalBlock"] > div:has(> div.element-container):hover {
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow:
-            0 12px 48px rgba(0, 0, 0, 0.4),
-            inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        transform: translateY(-2px);
-    }
 
-    /* ─── Glassmorphic Inputs ─── */
+    /* Glassmorphic Inputs */
     .stTextInput input, .stSelectbox div[data-baseweb="select"] > div {
         background: rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(10px) !important;
@@ -107,7 +98,7 @@ st.markdown("""
         box-shadow: 0 0 20px rgba(120, 80, 255, 0.15) !important;
     }
 
-    /* ─── Glassmorphic Button ─── */
+    /* Glassmorphic Button */
     .stButton > button {
         background: linear-gradient(135deg, rgba(120, 80, 255, 0.4), rgba(255, 80, 200, 0.3)) !important;
         backdrop-filter: blur(15px) !important;
@@ -125,27 +116,8 @@ st.markdown("""
         box-shadow: 0 12px 40px rgba(120, 80, 255, 0.3);
         border-color: rgba(255, 255, 255, 0.4);
     }
-    .stButton > button:active {
-        transform: translateY(0) scale(0.98);
-    }
 
-    /* ─── Number Input ─── */
-    .stNumberInput input {
-        background: rgba(255, 255, 255, 0.08) !important;
-        backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        border-radius: 12px !important;
-        color: white !important;
-        font-weight: 500 !important;
-    }
-
-    /* ─── Checkbox ─── */
-    .stCheckbox label {
-        color: rgba(255, 255, 255, 0.85) !important;
-        font-weight: 500 !important;
-    }
-
-    /* ─── Title ─── */
+    /* Title Gradient */
     h1, h2, h3 {
         background: linear-gradient(135deg, #a78bfa, #f472b6, #60a5fa);
         -webkit-background-clip: text;
@@ -154,13 +126,13 @@ st.markdown("""
         letter-spacing: -0.5px;
     }
 
-    /* ─── Progress Bar ─── */
+    /* Progress Bar */
     .stProgress > div > div {
         background: linear-gradient(90deg, #a78bfa, #f472b6) !important;
         border-radius: 10px !important;
     }
 
-    /* ─── Success/Info Messages ─── */
+    /* Alerts */
     .stAlert {
         background: rgba(255, 255, 255, 0.08) !important;
         backdrop-filter: blur(15px) !important;
@@ -169,7 +141,7 @@ st.markdown("""
         color: white !important;
     }
 
-    /* ─── Download Buttons ─── */
+    /* Download Buttons */
     .stDownloadButton > button {
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(59, 130, 246, 0.3)) !important;
         backdrop-filter: blur(15px) !important;
@@ -185,41 +157,7 @@ st.markdown("""
         box-shadow: 0 8px 30px rgba(16, 185, 129, 0.25);
     }
 
-    /* ─── Expander ─── */
-    .streamlit-expanderHeader {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border-radius: 12px !important;
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 600 !important;
-    }
-
-    /* ─── General text ─── */
-    p, li, .stMarkdown, label {
-        color: rgba(255, 255, 255, 0.85) !important;
-    }
-
-    /* ─── Sidebar ─── */
-    section[data-testid="stSidebar"] {
-        background: rgba(15, 12, 41, 0.9) !important;
-        backdrop-filter: blur(20px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
-    }
-
-    /* ─── Tabs ─── */
-    button[data-baseweb="tab"] {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border-radius: 10px 10px 0 0 !important;
-        color: rgba(255, 255, 255, 0.7) !important;
-        font-weight: 600 !important;
-        transition: all 0.3s ease !important;
-    }
-    button[data-baseweb="tab"][aria-selected="true"] {
-        background: rgba(120, 80, 255, 0.3) !important;
-        color: white !important;
-        border-bottom: 2px solid #a78bfa !important;
-    }
-
-    /* ─── Metrics ─── */
+    /* Metrics */
     [data-testid="stMetricValue"] {
         background: linear-gradient(135deg, #a78bfa, #f472b6);
         -webkit-background-clip: text;
@@ -232,7 +170,18 @@ st.markdown("""
         font-weight: 500 !important;
     }
 
-    /* Scrollbar */
+    /* Tabs */
+    button[data-baseweb="tab"][aria-selected="true"] {
+        background: rgba(120, 80, 255, 0.3) !important;
+        color: white !important;
+        border-bottom: 2px solid #a78bfa !important;
+    }
+
+    /* General text */
+    p, li, .stMarkdown, label {
+        color: rgba(255, 255, 255, 0.85) !important;
+    }
+
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
@@ -246,8 +195,7 @@ st.markdown("")
 
 # ─── Helper Functions ──────────────────────────────────────────────────────
 
-def parse_time(t_str: str) -> int:
-    """Parse MM:SS or raw seconds to int seconds."""
+def parse_time(t_str):
     if not t_str or not t_str.strip():
         return 0
     t_str = t_str.strip()
@@ -258,52 +206,166 @@ def parse_time(t_str: str) -> int:
         return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
     try:
         return int(float(t_str))
-    except ValueError:
+    except:
         return 0
 
-def format_time(secs: int) -> str:
-    m, s = divmod(secs, 60)
+def format_time(secs):
+    m, s = divmod(int(secs), 60)
     h, m = divmod(m, 60)
     if h > 0:
         return f"{h}:{m:02d}:{s:02d}"
     return f"{m}:{s:02d}"
 
 def run_cmd(cmd, timeout=300):
-    """Run a shell command safely, return (returncode, stdout, stderr)."""
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
         return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
         return -1, "", "TIMEOUT"
     except FileNotFoundError:
-        return -2, "", "ffmpeg/yt-dlp not found"
+        return -2, "", "Command not found"
     except Exception as e:
         return -3, "", str(e)
 
-@st.cache_data(show_spinner=False, ttl=600)
-def fetch_video_info(url: str):
-    """Fetch video metadata. Cached to avoid re-fetching."""
-    ret, out, err = run_cmd([
-        "yt-dlp", "--no-playlist", "--print", "title",
-        "--print", "duration", "--print", "uploader",
-        "--print", "id", "--print", "duration_string",
-        "--no-warnings", "--quiet", url
-    ], timeout=60)
-    if ret != 0:
-        return None, f"Failed to fetch video: {err[:200]}"
-    lines = out.strip().split("\n")
-    if len(lines) >= 5:
-        return {
-            "title": lines[0],
-            "duration": int(float(lines[1])),
-            "uploader": lines[2],
-            "id": lines[3],
-            "duration_str": lines[4],
-        }, None
-    return None, "Could not parse video info"
+def download_with_retry(url, output_path, max_retries=3):
+    """Download video with multiple retry strategies to handle 403 errors."""
+    
+    # Strategy 1: Default
+    # Strategy 2: With extractor-args for player client
+    # Strategy 3: With format fallback
+    
+    strategies = [
+        # Strategy 1: Default clean
+        {
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "extractor_args": None,
+            "user_agent": None
+        },
+        # Strategy 2: With player_client fix for 403
+        {
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "extractor_args": "youtube:player_client=default,-android_sdkless",
+            "user_agent": None
+        },
+        # Strategy 3: With iOS client (bypasses many restrictions)
+        {
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "extractor_args": "youtube:player_client=ios",
+            "user_agent": None
+        },
+        # Strategy 4: TV client
+        {
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "extractor_args": "youtube:player_client=tv",
+            "user_agent": None
+        },
+        # Strategy 5: Web Safari
+        {
+            "format": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+            "extractor_args": "youtube:player_client=web_safari",
+            "user_agent": None
+        },
+        # Strategy 6: Fallback to any format
+        {
+            "format": "worstvideo+worstaudio/worst",
+            "extractor_args": "youtube:player_client=default,-android_sdkless",
+            "user_agent": None
+        },
+        # Strategy 7: Android client
+        {
+            "format": "best[ext=mp4]/best",
+            "extractor_args": "youtube:player_client=android",
+            "user_agent": None
+        },
+        # Strategy 8: Direct m3u8
+        {
+            "format": "bv[protocol=m3u8_native]+ba[protocol=m3u8_native]/b[protocol=m3u8_native]",
+            "extractor_args": "youtube:player_client=default,-android_sdkless",
+            "user_agent": None
+        },
+    ]
 
-def get_video_resolution(video_path: str):
-    """Get original width and height using ffprobe."""
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0",
+    ]
+
+    for attempt in range(max_retries):
+        for strat_idx, strategy in enumerate(strategies):
+            cmd = [
+                "yt-dlp",
+                "--no-playlist",
+                "--no-warnings",
+                "--quiet",
+                "-f", strategy["format"],
+                "-o", output_path,
+                "--force-keyframes-at-cuts",
+                "--no-check-certificates",
+            ]
+            
+            # Add extractor args if available
+            if strategy["extractor_args"]:
+                cmd.extend(["--extractor-args", strategy["extractor_args"]])
+            
+            # Rotate user agents
+            ua = user_agents[(attempt + strat_idx) % len(user_agents)]
+            cmd.extend(["--user-agent", ua])
+            
+            # Add random delay to avoid rate limiting
+            time.sleep(random.uniform(0.5, 2.0))
+            
+            cmd.append(url)
+            
+            ret, out, err = run_cmd(cmd, timeout=600)
+            
+            if ret == 0:
+                # Check if file was actually created
+                base_path = output_path.replace("%(ext)s", "mp4")
+                for f in os.listdir(os.path.dirname(output_path)):
+                    if f.endswith(".mp4") or f.endswith(".webm") or f.endswith(".mkv"):
+                        fp = os.path.join(os.path.dirname(output_path), f)
+                        if os.path.getsize(fp) > 10000:
+                            return 0, fp
+            
+        # If we get here, all strategies failed — wait and retry
+        time.sleep(3 * (attempt + 1))
+    
+    return -1, None
+
+@st.cache_data(show_spinner=False, ttl=600)
+def fetch_video_info(url):
+    """Fetch video metadata with retry."""
+    user_agents = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15",
+    ]
+    
+    for ua in user_agents:
+        cmd = [
+            "yt-dlp", "--no-playlist", "--no-warnings", "--quiet",
+            "--user-agent", ua,
+            "--extractor-args", "youtube:player_client=default,-android_sdkless",
+            "--print", "title", "--print", "duration",
+            "--print", "uploader", "--print", "id",
+            "--print", "duration_string", url
+        ]
+        ret, out, err = run_cmd(cmd, timeout=60)
+        if ret == 0:
+            lines = out.strip().split("\n")
+            if len(lines) >= 5:
+                return {
+                    "title": lines[0],
+                    "duration": int(float(lines[1])),
+                    "uploader": lines[2],
+                    "id": lines[3],
+                    "duration_str": lines[4],
+                }, None
+    
+    return None, "Could not fetch video info. YouTube may be blocking. Try a different video."
+
+def get_video_resolution(video_path):
     ret, out, err = run_cmd([
         "ffprobe", "-v", "error",
         "-select_streams", "v:0",
@@ -316,29 +378,21 @@ def get_video_resolution(video_path: str):
             return int(parts[0]), int(parts[1])
     return 1920, 1080
 
+# ─── Session State Init ────────────────────────────────────────────────────
+for key in ["generated_files", "generated_zip", "video_info", "work_dir", "num_clips"]:
+    if key not in st.session_state:
+        st.session_state[key] = None if key != "num_clips" else 0
+if st.session_state.generated_files is None:
+    st.session_state.generated_files = []
+
 # ─── UI ─────────────────────────────────────────────────────────────────────
 
-# Session state initialization
-if "generated_files" not in st.session_state:
-    st.session_state.generated_files = []
-if "generated_zip" not in st.session_state:
-    st.session_state.generated_zip = None
-if "video_info" not in st.session_state:
-    st.session_state.video_info = None
-if "work_dir" not in st.session_state:
-    st.session_state.work_dir = None
-if "num_clips" not in st.session_state:
-    st.session_state.num_clips = 0
-
-# ─── Input Card ─────────────────────────────────────────────────────────────
 with st.container():
     col_url, col_fetch = st.columns([5, 1])
     with col_url:
         url_input = st.text_input(
-            "📺 YouTube URL",
-            placeholder="https://youtube.com/watch?v=...",
-            label_visibility="collapsed",
-            key="url_input"
+            "YouTube URL", placeholder="https://youtube.com/watch?v=...",
+            label_visibility="collapsed", key="url_input"
         )
     with col_fetch:
         fetch_btn = st.button("🔍 Fetch", use_container_width=True)
@@ -353,7 +407,6 @@ with st.container():
                 st.session_state.video_info = info
                 st.success(f"✅ {info['title'][:60]}... | {info['duration_str']} | by {info['uploader']}")
 
-# ─── Show video info if available ──────────────────────────────────────────
 if st.session_state.video_info:
     info = st.session_state.video_info
     c1, c2, c3 = st.columns(3)
@@ -363,7 +416,7 @@ if st.session_state.video_info:
 
 st.markdown("")
 
-# ─── Settings Card ──────────────────────────────────────────────────────────
+# ─── Settings ──────────────────────────────────────────────────────────────
 with st.container():
     st.markdown("### ⚙️ Configuration")
 
@@ -373,22 +426,16 @@ with st.container():
             "📐 Aspect Ratio",
             options=[
                 "9:16 (Shorts / TikTok / Reels)",
-                "1:1 (Square)",
-                "4:5 (Portrait)",
-                "16:9 (Landscape)",
-                "4:3 (Standard)",
-                "21:9 (Ultrawide)"
-            ],
-            index=0
+                "1:1 (Square)", "4:5 (Portrait)",
+                "16:9 (Landscape)", "4:3 (Standard)", "21:9 (Ultrawide)"
+            ], index=0
         )
     with c2:
         quality = st.selectbox(
             "🔊 Output Quality",
-            options=["Best Available", "1080p", "720p", "480p"],
-            index=0
+            options=["Best Available", "1080p", "720p", "480p"], index=0
         )
 
-    # ─── Shorts Duration & Count ───
     st.markdown("### 🎯 Shorts Configuration")
 
     c1, c2 = st.columns(2)
@@ -397,34 +444,25 @@ with st.container():
             "⏱ Each Short Duration",
             options=[15, 30, 45, 60, 90, 120],
             index=1,
-            format_func=lambda x: f"{x} seconds" if x < 60 else f"{x//60}:{x%60:02d} min"
+            format_func=lambda x: f"{x}s" if x < 60 else f"{x//60}m {x%60:02d}s"
         )
     with c2:
         max_clips = st.number_input(
-            "🔢 Number of Shorts",
-            min_value=1,
-            max_value=50,
-            value=5,
-            step=1,
+            "🔢 Number of Shorts", min_value=1, max_value=50, value=5, step=1,
             help="How many short clips to generate"
         )
 
-    # ─── Advanced Options ───
     with st.expander("🎨 Advanced Options"):
         c1, c2 = st.columns(2)
         with c1:
-            blur_bg = st.checkbox("✨ Blurred Background", value=False,
-                                  help="Adds blurred video background for non-standard ratios")
+            blur_bg = st.checkbox("✨ Blurred Background", value=False)
             add_fade = st.checkbox("🌅 Fade In/Out", value=True)
         with c2:
-            start_offset = st.number_input("⏩ Start From (seconds)", min_value=0, value=0, step=5,
-                                           help="Skip the first N seconds of the video")
-            add_watermark = st.checkbox("🏷️ Add Text Watermark", value=False,
-                                        help="Add 'ShortsForge' watermark to clips")
+            start_offset = st.number_input("⏩ Start From (seconds)", min_value=0, value=0, step=5)
+            add_watermark = st.checkbox("🏷️ Text Watermark", value=False, disabled=True,
+                                        help="Coming soon")
 
     st.markdown("")
-
-    # ─── Generate Button ───
     gen_btn = st.button("🚀 GENERATE SHORTS", type="primary", use_container_width=True)
 
 # ─── Processing ────────────────────────────────────────────────────────────
@@ -437,24 +475,21 @@ if gen_btn and url_input:
     video_duration = info["duration"]
     start_sec = start_offset
 
-    # Calculate how many clips we can actually make
+    # Calculate clips
     available_sec = video_duration - start_sec
     possible_clips = available_sec // clip_duration
     actual_clips = min(max_clips, possible_clips)
 
     if actual_clips < 1:
-        st.error(f"❌ Video is only {format_time(video_duration)} long. With {start_offset}s offset and {clip_duration}s clips, no clips can be made.")
+        st.error(f"❌ Video is only {format_time(video_duration)} long. Can't make {clip_duration}s clips starting at {start_sec}s.")
         st.stop()
 
-    # Update count
     st.session_state.num_clips = actual_clips
-    st.info(f"📊 Generating **{actual_clips}** clips of **{clip_duration}s** each (from {format_time(start_sec)} to {format_time(start_sec + actual_clips * clip_duration)})")
+    st.info(f"📊 Generating **{actual_clips}** clips of **{clip_duration}s** each ({format_time(start_sec)} → {format_time(start_sec + actual_clips * clip_duration)})")
 
-    # ─── Progress ───
     progress_bar = st.progress(0)
     status_text = st.empty()
 
-    # ─── Work directory ───
     work_dir = tempfile.mkdtemp()
     st.session_state.work_dir = work_dir
     output_dir = os.path.join(work_dir, "shorts")
@@ -464,57 +499,54 @@ if gen_btn and url_input:
 
     try:
         # ─── Step 1: Download ───
-        status_text.info("⬇️ Step 1/4: Downloading video...")
+        status_text.info("⬇️ Step 1/4: Downloading video (may take a moment)...")
         progress_bar.progress(5)
 
-        download_cmd = [
-            "yt-dlp", "-f", "best[ext=mp4]/best",
-            "-o", os.path.join(work_dir, "source.%(ext)s"),
-            "--no-playlist", "--no-warnings",
-            "--quiet",
-            "--force-keyframes-at-cuts",
-            url_input
-        ]
-        ret, out, err = run_cmd(download_cmd, timeout=600)
-        if ret != 0:
-            st.error(f"❌ Download failed: {err[:300]}")
+        download_template = os.path.join(work_dir, "source.%(ext)s")
+        ret_code, video_path = download_with_retry(url_input, download_template)
+
+        if ret_code != 0:
+            st.error("❌ Download failed after multiple attempts. YouTube is blocking. Try:")
+            st.markdown("- A different (shorter) video\n- A video that's not age-restricted\n- Try again later")
             shutil.rmtree(work_dir, ignore_errors=True)
             st.stop()
 
         # Find the downloaded file
-        video_path = None
+        actual_path = None
         for f in os.listdir(work_dir):
-            if f.startswith("source") and (f.endswith(".mp4") or f.endswith(".webm")):
-                video_path = os.path.join(work_dir, f)
-                break
+            if os.path.isfile(os.path.join(work_dir, f)):
+                size = os.path.getsize(os.path.join(work_dir, f))
+                if size > 10000 and not f.endswith(".part"):
+                    actual_path = os.path.join(work_dir, f)
+                    break
 
-        if not video_path or not os.path.exists(video_path):
-            st.error("❌ Download completed but file not found")
+        if not actual_path or not os.path.exists(actual_path):
+            st.error("❌ Download completed but file not found on disk")
             shutil.rmtree(work_dir, ignore_errors=True)
             st.stop()
 
         # Convert webm to mp4
-        if video_path.endswith(".webm"):
+        if actual_path.endswith(".webm"):
             status_text.info("🔄 Converting WebM to MP4...")
             progress_bar.progress(15)
-            mp4_path = video_path.replace(".webm", ".mp4")
+            mp4_path = actual_path.replace(".webm", ".mp4")
             run_cmd([
-                "ffmpeg", "-i", video_path,
+                "ffmpeg", "-i", actual_path,
                 "-c:v", "libx264", "-c:a", "aac",
-                "-movflags", "+faststart",
-                "-y", mp4_path
+                "-movflags", "+faststart", "-y", mp4_path
             ], timeout=300)
-            os.remove(video_path)
-            video_path = mp4_path
+            if os.path.exists(mp4_path) and os.path.getsize(mp4_path) > 10000:
+                os.remove(actual_path)
+                actual_path = mp4_path
 
         progress_bar.progress(20)
-        status_text.success(f"✅ Downloaded: {os.path.basename(video_path)}")
+        file_size_mb = os.path.getsize(actual_path) / 1024 / 1024
+        status_text.success(f"✅ Downloaded: {os.path.basename(actual_path)[:40]} ({file_size_mb:.1f} MB)")
 
-        # ─── Step 2: Get resolution ───
-        status_text.info("🔍 Analyzing video...")
-        orig_w, orig_h = get_video_resolution(video_path)
+        # ─── Step 2: Analyze ───
+        status_text.info("🔍 Analyzing video dimensions...")
+        orig_w, orig_h = get_video_resolution(actual_path)
 
-        # Calculate crop dimensions
         aspect_map = {
             "9:16 (Shorts / TikTok / Reels)": (9, 16),
             "1:1 (Square)": (1, 1),
@@ -524,37 +556,32 @@ if gen_btn and url_input:
             "21:9 (Ultrawide)": (21, 9),
         }
         a_w, a_h = aspect_map[aspect_ratio]
-        tgt_ratio = a_h / a_w  # height/width for vertical
+        tgt_ratio = a_h / a_w
         src_ratio = orig_h / orig_w
 
         if src_ratio > tgt_ratio:
-            # Source is taller — need to crop height
             crop_h = int(orig_w * tgt_ratio)
             crop_w = orig_w
             y_off = (orig_h - crop_h) // 2
             x_off = 0
         else:
-            # Source is wider — need to crop width
             crop_w = int(orig_h / tgt_ratio)
             crop_h = orig_h
             x_off = (orig_w - crop_w) // 2
             y_off = 0
 
-        # Ensure even dimensions
         crop_w += crop_w % 2
         crop_h += crop_h % 2
 
         progress_bar.progress(25)
-        status_text.success(f"✅ Video analyzed: {orig_w}x{orig_h} → crop to {crop_w}x{crop_h} for {aspect_ratio}")
+        status_text.success(f"✅ Video: {orig_w}x{orig_h} → Crop to {crop_w}x{crop_h}")
 
-        # ─── Step 3: Generate clips ───
+        # ─── Step 3: Generate Clips ───
         status_text.info(f"🎬 Step 3/4: Generating {actual_clips} clips...")
 
         quality_map = {
-            "Best Available": "8000k",
-            "1080p": "6000k",
-            "720p": "3500k",
-            "480p": "1500k",
+            "Best Available": "8000k", "1080p": "6000k",
+            "720p": "3500k", "480p": "1500k",
         }
         bitrate = quality_map.get(quality, "6000k")
 
@@ -564,13 +591,12 @@ if gen_btn and url_input:
 
             pct = 25 + int((idx / actual_clips) * 65)
             progress_bar.progress(pct)
-            status_text.info(f"🎬 Rendering clip {idx+1}/{actual_clips} ({format_time(seg_start)} - {format_time(seg_end)})...")
+            status_text.info(f"🎬 Rendering clip {idx+1}/{actual_clips} ({format_time(seg_start)} — {format_time(seg_end)})...")
 
-            clip_name = f"ShortsForge_{idx+1}_{format_time(seg_start).replace(':','-')}_{format_time(seg_end).replace(':','-')}.mp4"
+            clip_name = f"ShortsForge_{idx+1}.mp4"
             clip_path = os.path.join(output_dir, clip_name)
 
             if blur_bg:
-                # Complex: blurred bg + centered cropped video
                 filter_complex = (
                     f"[0:v]trim=start={seg_start}:end={seg_end},setpts=PTS-STARTPTS[main];"
                     f"[0:v]trim=start={seg_start}:end={seg_end},setpts=PTS-STARTPTS,"
@@ -580,14 +606,13 @@ if gen_btn and url_input:
                     f"[blurred][cropped]overlay=(W-w)/2:(H-h)/2[outv]"
                 )
                 ffmpeg_cmd = [
-                    "ffmpeg", "-i", video_path,
+                    "ffmpeg", "-i", actual_path,
                     "-filter_complex", filter_complex,
                     "-map", "[outv]", "-map", "0:a?",
                     "-c:v", "libx264", "-c:a", "aac",
                     "-b:v", bitrate, "-preset", "fast",
                     "-t", str(clip_duration),
-                    "-movflags", "+faststart",
-                    "-y", clip_path
+                    "-movflags", "+faststart", "-y", clip_path
                 ]
             else:
                 vf = f"crop={crop_w}:{crop_h}:{x_off}:{y_off},scale={crop_w}:{crop_h}"
@@ -596,34 +621,30 @@ if gen_btn and url_input:
                     vf += f",fade=t=in:st=0:d={fade_dur},fade=t=out:st={clip_duration - fade_dur}:d={fade_dur}"
 
                 ffmpeg_cmd = [
-                    "ffmpeg", "-ss", str(seg_start), "-i", video_path,
+                    "ffmpeg", "-ss", str(seg_start), "-i", actual_path,
                     "-t", str(clip_duration),
                     "-vf", vf,
                     "-c:v", "libx264", "-c:a", "aac",
                     "-b:v", bitrate, "-preset", "fast",
-                    "-movflags", "+faststart",
-                    "-y", clip_path
+                    "-movflags", "+faststart", "-y", clip_path
                 ]
 
             ret, out, err = run_cmd(ffmpeg_cmd, timeout=300)
-            if ret != 0:
-                st.warning(f"⚠️ Clip {idx+1} had an issue: {err[:100]}")
-                continue
-
-            if os.path.exists(clip_path) and os.path.getsize(clip_path) > 5000:
+            if ret == 0 and os.path.exists(clip_path) and os.path.getsize(clip_path) > 5000:
                 generated_files.append(clip_path)
             else:
-                st.warning(f"⚠️ Clip {idx+1} failed to generate properly")
+                st.warning(f"⚠️ Clip {idx+1} had an issue, skipping...")
+                continue
 
         if not generated_files:
-            st.error("❌ No clips were generated. Something went wrong.")
+            st.error("❌ No clips were generated. Something went wrong with ffmpeg processing.")
             shutil.rmtree(work_dir, ignore_errors=True)
             st.stop()
 
         progress_bar.progress(95)
-        status_text.success(f"✅ {len(generated_files)} clips generated successfully!")
+        status_text.success(f"✅ {len(generated_files)} clips generated!")
 
-        # ─── Step 4: Create ZIP ───
+        # ─── Step 4: ZIP ───
         status_text.info("📦 Step 4/4: Creating download package...")
         zip_path = os.path.join(work_dir, "ShortsForge_All_Clips.zip")
         shutil.make_archive(zip_path.replace(".zip", ""), "zip", output_dir)
@@ -635,7 +656,8 @@ if gen_btn and url_input:
         status_text.success("✅ Complete!")
 
     except Exception as e:
-        st.error(f"❌ Unexpected error: {str(e)}")
+        st.error(f"❌ Error: {str(e)}")
+        st.info("💡 Tip: Try a shorter video or different URL")
         shutil.rmtree(work_dir, ignore_errors=True)
         st.stop()
 
@@ -645,38 +667,34 @@ if st.session_state.generated_files:
     st.markdown("### 📥 Download Your Shorts")
 
     files = st.session_state.generated_files
+    valid_files = [f for f in files if os.path.exists(f)]
 
-    col1, col2 = st.columns([1, 2])
+    col1, col2 = st.columns(2)
     with col1:
-        st.metric("Clips Generated", len(files))
+        st.metric("Clips Generated", len(valid_files))
     with col2:
-        total_size = sum(os.path.getsize(f) for f in files if os.path.exists(f))
+        total_size = sum(os.path.getsize(f) for f in valid_files)
         st.metric("Total Size", f"{total_size / 1024 / 1024:.1f} MB")
 
     st.markdown("")
 
-    # Individual download buttons in a grid
-    cols_per_row = 3
-    for i in range(0, len(files), cols_per_row):
-        row_files = files[i:i+cols_per_row]
-        cols = st.columns(cols_per_row)
-        for j, clip_path in enumerate(row_files):
-            clip_name = os.path.basename(clip_path)
-            display_name = clip_name.replace("ShortsForge_", "").replace(".mp4", "")
+    # Download buttons in grid
+    for i in range(0, len(valid_files), 3):
+        row = valid_files[i:i+3]
+        cols = st.columns(3)
+        for j, clip_path in enumerate(row):
             with cols[j]:
-                if os.path.exists(clip_path):
-                    with open(clip_path, "rb") as f:
-                        st.download_button(
-                            label=f"🎬 Short #{i+j+1}",
-                            data=f,
-                            file_name=clip_name,
-                            mime="video/mp4",
-                            use_container_width=True
-                        )
-                    file_size = os.path.getsize(clip_path) / 1024 / 1024
-                    st.caption(f"{file_size:.1f} MB — {display_name}")
+                clip_name = os.path.basename(clip_path)
+                with open(clip_path, "rb") as f:
+                    mb = os.path.getsize(clip_path) / 1024 / 1024
+                    st.download_button(
+                        label=f"🎬 Short #{i+j+1} ({mb:.1f} MB)",
+                        data=f,
+                        file_name=clip_name,
+                        mime="video/mp4",
+                        use_container_width=True
+                    )
 
-    # Bulk download
     st.markdown("")
     if st.session_state.generated_zip and os.path.exists(st.session_state.generated_zip):
         with open(st.session_state.generated_zip, "rb") as f:
@@ -688,19 +706,16 @@ if st.session_state.generated_files:
                 type="primary",
                 use_container_width=True
             )
-    st.markdown("")
 
-    # Clear button
+    st.markdown("")
     if st.button("🔄 Start Over", use_container_width=True):
         if st.session_state.work_dir:
             shutil.rmtree(st.session_state.work_dir, ignore_errors=True)
-        st.session_state.generated_files = []
-        st.session_state.generated_zip = None
-        st.session_state.video_info = None
-        st.session_state.work_dir = None
+        for key in ["generated_files", "generated_zip", "video_info", "work_dir"]:
+            st.session_state[key] = None if key != "num_clips" else 0
+        if st.session_state.generated_files is None:
+            st.session_state.generated_files = []
         st.rerun()
 
-# ─── Footer ─────────────────────────────────────────────────────────────────
 st.markdown("")
-st.markdown("")
-st.markdown("<p style='text-align: center; color: rgba(255,255,255,0.2); font-size: 0.8rem;'>ShortsForge Premium v2.0 — Built for authorized security professionals</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: rgba(255,255,255,0.2); font-size: 0.8rem;'>ShortsForge Premium v2.0</p>", unsafe_allow_html=True)
